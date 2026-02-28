@@ -3,8 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>About — Slide Collage</title>
+<title>About — Slide Collage | スライドコラージュ生成ツール</title>
 <meta name="description" content="スライド稼業のあるあるを解決。グリッドレイアウト・ぼかし機能・高解像度出力に対応した、スライドコラージュ生成ツールです。">
+<meta name="keywords" content="スライドコラージュ, ポートフォリオ作成, グリッドレイアウト, ぼかし機能, 4K出力, 登壇資料">
+<meta name="author" content="kzhrknt">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://slide-collage.vercel.app/about.html">
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website">
@@ -233,6 +237,21 @@
     line-height: 1.7;
   }
 
+  /* ── Video ── */
+  .video-container {
+    max-width: 800px;
+    margin: 48px auto 0;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+
+  .video-container video {
+    width: 100%;
+    display: block;
+  }
+
   /* ── CTA Section ── */
   .cta-section {
     text-align: center;
@@ -341,6 +360,14 @@
 <section>
   <div class="section-label">03 — 使い方</div>
   <h3>3ステップで完成</h3>
+
+  <div class="video-container">
+    <video controls loop muted playsinline>
+      <source src="howtouse.mp4" type="video/mp4">
+      お使いのブラウザは動画タグをサポートしていません。
+    </video>
+  </div>
+
   <div class="steps">
     <div class="step">
       <div class="step-number">1</div>
