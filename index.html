@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slide Collage — Portfolio Layout Generator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@300;400&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f3ef;
+    --surface: #ffffff;
+    --ink: #1a1917;
+    --ink2: #6b6860;
+    --accent: #2d4a3e;
+    --border: #e0ddd8;
+    --hover: #f0ede8;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'DM Mono', monospace;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  header {
+    padding: 18px 32px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+
+  header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 300;
+    letter-spacing: 0.04em;
+  }
+
+  header span {
+    font-size: 9px;
+    color: var(--ink2);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .workspace {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* ── LEFT PANEL ── */
+  .panel {
+    border-right: 1px solid var(--border);
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    overflow-y: auto;
+  }
+
+  .section-label {
+    font-size: 8.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink2);
+    margin-bottom: 10px;
+  }
+
+  .upload-zone {
+    border: 1.5px dashed var(--border);
+    border-radius: 2px;
+    padding: 18px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--surface);
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--accent);
+    background: #f0f5f2;
+  }
+  .upload-zone input { display: none; }
+  .upload-zone p { font-size: 10px; color: var(--ink2); line-height: 1.7; }
+  .upload-zone strong { color: var(--accent); font-weight: 400; text-decoration: underline; }
+
+  .thumb-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    max-height: 180px;
+    overflow-y: auto;
+  }
+  .thumb-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    cursor: grab;
+    transition: background 0.12s;
+  }
+  .thumb-item:hover { background: var(--hover); }
+  .thumb-item.dragging { opacity: 0.35; }
+  .thumb-item img { width: 46px; height: 26px; object-fit: cover; border-radius: 1px; flex-shrink: 0; background: #ccc; }
+  .thumb-name { font-size: 9.5px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .thumb-remove {
+    border: none; background: none; cursor: pointer;
+    color: var(--ink2); font-size: 13px; opacity: 0.4;
+    transition: opacity 0.12s; padding: 0 2px; flex-shrink: 0;
+  }
+  .thumb-remove:hover { opacity: 1; color: #b94040; }
+
+  .divider { border: none; border-top: 1px solid var(--border); }
+
+  .ctrl-block { display: flex; flex-direction: column; gap: 11px; }
+
+  .ctrl-row { display: flex; align-items: center; gap: 8px; }
+
+  .ctrl-label {
+    font-size: 9.5px;
+    color: var(--ink2);
+    width: 86px;
+    flex-shrink: 0;
+    line-height: 1.35;
+  }
+  .ctrl-label small { font-size: 7.5px; opacity: 0.65; display: block; }
+
+  input[type=range] {
+    flex: 1;
+    accent-color: var(--accent);
+    cursor: pointer;
+    height: 2px;
+  }
+
+  .ctrl-val {
+    font-size: 9px;
+    color: var(--ink);
+    width: 38px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  input[type=color] {
+    width: 26px; height: 20px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    cursor: pointer;
+    padding: 1px;
+    flex-shrink: 0;
+  }
+
+  select {
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--ink);
+    padding: 4px 6px;
+    border-radius: 2px;
+    cursor: pointer;
+    flex: 1;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 11px;
+    border: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: opacity 0.2s;
+  }
+  .btn:hover { opacity: 0.8; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-secondary { background: #3a3a3a; color: #fff; }
+
+  /* ── RIGHT AREA ── */
+  .canvas-area {
+    display: flex;
+    flex-direction: column;
+    background: #e8e5e0;
+    overflow: hidden;
+  }
+
+  .preview-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    min-height: 0;
+    position: relative;
+  }
+
+  #preview-canvas {
+    max-width: 100%;
+    max-height: 100%;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.22);
+    border-radius: 1px;
+    display: none;
+  }
+
+  .empty-hint {
+    position: absolute;
+    text-align: center;
+    color: var(--ink2);
+  }
+  .empty-hint p { font-size: 10px; letter-spacing: 0.07em; opacity: 0.5; margin-top: 14px; line-height: 1.6; }
+
+  .status-bar {
+    border-top: 1px solid #d4d0ca;
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    gap: 12px;
+  }
+  .status-info { font-size: 9px; color: var(--ink2); }
+  .export-btns { display: flex; gap: 8px; }
+  .btn-export {
+    padding: 7px 18px;
+    border: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: opacity 0.2s;
+  }
+  .btn-export:hover { opacity: 0.72; }
+  .btn-export-png { background: var(--accent); color: #fff; }
+  .btn-export-jpg { background: var(--ink); color: #fff; }
+
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Slide Collage</h1>
+  <span>Portfolio Layout Generator</span>
+</header>
+
+<div class="workspace">
+
+  <!-- PANEL -->
+  <div class="panel">
+
+    <!-- 01 Upload -->
+    <div>
+      <div class="section-label">01 — スライドを追加</div>
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="fileInput" accept="image/*" multiple>
+        <p>ドラッグ＆ドロップ<br>または<strong>ファイルを選択</strong><br><span style="font-size:8.5px;opacity:.6">PNG / JPG / WEBP</span></p>
+      </div>
+      <div style="height:7px"></div>
+      <div class="thumb-list" id="thumbList"></div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 02 Grid -->
+    <div>
+      <div class="section-label">02 — グリッド</div>
+      <div class="ctrl-block">
+        <div class="ctrl-row">
+          <span class="ctrl-label">列数</span>
+          <input type="range" id="cols" min="1" max="8" value="3" step="1">
+          <span class="ctrl-val" id="colsVal">3</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">間隔</span>
+          <input type="range" id="gap" min="0" max="40" value="8" step="1">
+          <span class="ctrl-val" id="gapVal">8px</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">外側余白</span>
+          <input type="range" id="padding" min="0" max="100" value="24" step="2">
+          <span class="ctrl-val" id="paddingVal">24px</span>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 03 Offset & Rotation -->
+    <div>
+      <div class="section-label">03 — ずらし / 回転 / ズーム</div>
+      <div class="ctrl-block">
+        <div class="ctrl-row">
+          <span class="ctrl-label">列ずらし<small>偶数列を縦方向にずらす</small></span>
+          <input type="range" id="offset" min="0" max="100" value="0" step="1">
+          <span class="ctrl-val" id="offsetVal">0%</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">全体の回転<small>−45° 〜 +45°</small></span>
+          <input type="range" id="rotation" min="-45" max="45" value="0" step="0.5">
+          <span class="ctrl-val" id="rotationVal">0°</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">ズーム<small>100% = デフォルト表示</small></span>
+          <input type="range" id="zoom" min="100" max="300" value="100" step="1">
+          <span class="ctrl-val" id="zoomVal">100%</span>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 04 Appearance -->
+    <div>
+      <div class="section-label">04 — 見た目</div>
+      <div class="ctrl-block">
+        <div class="ctrl-row">
+          <span class="ctrl-label">背景色</span>
+          <input type="color" id="bgColor" value="#1a1917">
+          <span style="font-size:9px;color:var(--ink2);margin-left:4px" id="bgColorHex">#1a1917</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">角丸</span>
+          <input type="range" id="radius" min="0" max="20" value="4" step="1">
+          <span class="ctrl-val" id="radiusVal">4px</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">出力サイズ</span>
+          <select id="outputSize">
+            <option value="1920x1080">1920 × 1080</option>
+            <option value="2560x1440">2560 × 1440</option>
+            <option value="3840x2160">3840 × 2160 (4K)</option>
+            <option value="1200x800">1200 × 800</option>
+            <option value="1200x1200">1200 × 1200</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CANVAS AREA -->
+  <div class="canvas-area">
+    <div class="preview-wrap" id="previewWrap">
+      <div class="empty-hint" id="emptyHint">
+        <svg width="52" height="52" viewBox="0 0 52 52" fill="none" stroke="#999" stroke-width="1.3">
+          <rect x="2" y="2" width="21" height="14" rx="1.5"/>
+          <rect x="28" y="2" width="22" height="14" rx="1.5"/>
+          <rect x="2" y="20" width="48" height="12" rx="1.5"/>
+          <rect x="2" y="36" width="14" height="14" rx="1.5"/>
+          <rect x="20" y="36" width="14" height="14" rx="1.5"/>
+          <rect x="38" y="36" width="12" height="14" rx="1.5"/>
+        </svg>
+        <p>スライドを追加すると<br>リアルタイムでプレビューされます</p>
+      </div>
+      <canvas id="preview-canvas"></canvas>
+    </div>
+    <div class="status-bar">
+      <span class="status-info" id="statusInfo">—</span>
+      <div class="export-btns">
+        <button class="btn-export btn-export-png" onclick="doExport('png')">PNG 保存</button>
+        <button class="btn-export btn-export-jpg" onclick="doExport('jpg')">JPG 保存</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────
+const S = { images: [], nextId: 0 };
+const RATIO = 16 / 9;
+
+// ── Params ────────────────────────────────────────────────────
+function P() {
+  return {
+    cols:       parseInt(v('cols')),
+    gap:        parseInt(v('gap')),
+    pad:        parseInt(v('padding')),
+    offset:     parseFloat(v('offset')) / 100,   // fraction of slideH
+    rotation:   parseFloat(v('rotation')),         // degrees
+    zoom:       parseFloat(v('zoom')) / 100,       // 1.0 = 100% (default)
+    bgColor:    v('bgColor'),
+    radius:     parseInt(v('radius')),
+    outputSize: v('outputSize'),
+  };
+}
+function v(id) { return document.getElementById(id).value; }
+
+// ── Layout ────────────────────────────────────────────────────
+// All slides are 16:9, same size.
+// Odd-indexed columns (1, 3, 5...) shift down by offset * slideH.
+// Entire grid rotates around canvas center.
+
+function computeSlides(W, H, p) {
+  const n = S.images.length;
+  if (n === 0) return [];
+
+  const { cols, gap, pad, offset, rotation, zoom } = p;
+  const rows = Math.ceil(n / cols);
+  const hasOffset = offset > 0 && cols > 1;
+
+  const areaW = W - pad * 2;
+  const areaH = H - pad * 2;
+
+  // slideW from width constraint
+  const slideW_w = (areaW - gap * (cols - 1)) / cols;
+  const slideH_w = slideW_w / RATIO;
+
+  // extra vertical space needed when offset is applied
+  const extraH = hasOffset ? slideH_w * offset : 0;
+  const totalH_w = slideH_w * rows + gap * (rows - 1) + extraH;
+
+  let slideW, slideH;
+  if (totalH_w <= areaH) {
+    slideW = slideW_w;
+    slideH = slideH_w;
+  } else {
+    // height-constrained: slideH*(rows + offset) + gap*(rows-1) = areaH
+    const denom = rows + (hasOffset ? offset : 0);
+    slideH = (areaH - gap * (rows - 1)) / denom;
+    slideW = slideH * RATIO;
+    // still clamp to width
+    if (slideW > slideW_w) { slideW = slideW_w; slideH = slideW / RATIO; }
+  }
+
+  // Apply zoom: scale the entire grid around canvas center
+  slideW *= zoom;
+  slideH *= zoom;
+  const zoomedGap = gap * zoom;
+
+  const gridW = slideW * cols + zoomedGap * (cols - 1);
+  const extraV = hasOffset ? slideH * offset : 0;
+  const gridH = slideH * rows + zoomedGap * (rows - 1) + extraV;
+
+  const ox = W / 2 - gridW / 2;
+  const oy = H / 2 - gridH / 2;
+
+  const ccx = W / 2, ccy = H / 2;
+  const rad = rotation * Math.PI / 180;
+  const cos = Math.cos(rad), sin = Math.sin(rad);
+
+  const tiles = [];
+  for (let i = 0; i < n; i++) {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const isOddCol = col % 2 === 1;
+    const colShift = isOddCol ? slideH * offset : 0;
+
+    const cx0 = ox + col * (slideW + zoomedGap) + slideW / 2;
+    const cy0 = oy + row * (slideH + zoomedGap) + slideH / 2 + colShift;
+
+    // rotate around canvas center
+    const dx = cx0 - ccx, dy = cy0 - ccy;
+    const cx = ccx + dx * cos - dy * sin;
+    const cy = ccy + dx * sin + dy * cos;
+
+    tiles.push({ cx, cy, w: slideW, h: slideH, angle: rad, imgIdx: i });
+  }
+
+  return tiles;
+}
+
+// ── Draw ──────────────────────────────────────────────────────
+function drawCanvas(canvas, W, H, p, radiusScale = 1) {
+  canvas.width  = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  ctx.fillStyle = p.bgColor;
+  ctx.fillRect(0, 0, W, H);
+
+  if (S.images.length === 0) return;
+
+  // Clip entire canvas so zoomed tiles don't bleed outside
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, 0, W, H);
+  ctx.clip();
+
+  const tiles = computeSlides(W, H, p);
+  const r = p.radius * radiusScale;
+
+  tiles.forEach(t => {
+    const img = S.images[t.imgIdx].img;
+    ctx.save();
+    ctx.translate(t.cx, t.cy);
+    ctx.rotate(t.angle);
+
+    const hw = t.w / 2, hh = t.h / 2;
+
+    // Rounded clip
+    clipRoundRect(ctx, -hw, -hh, t.w, t.h, r);
+    ctx.clip();
+
+    // letterbox background
+    ctx.fillStyle = p.bgColor;
+    ctx.fillRect(-hw, -hh, t.w, t.h);
+
+    // Contain: full image visible, 16:9 slot
+    const iw = img.naturalWidth, ih = img.naturalHeight;
+    const iRatio = iw / ih;
+    let dw, dh;
+    if (iRatio > RATIO) { dw = t.w; dh = t.w / iRatio; }
+    else                 { dh = t.h; dw = t.h * iRatio; }
+
+    ctx.drawImage(img, -dw / 2, -dh / 2, dw, dh);
+    ctx.restore();
+  });
+
+  ctx.restore(); // release canvas clip
+}
+
+function clipRoundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  if (r <= 0) { ctx.rect(x, y, w, h); return; }
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+// ── Preview ───────────────────────────────────────────────────
+let raf = null;
+function schedule() {
+  if (raf) cancelAnimationFrame(raf);
+  raf = requestAnimationFrame(refresh);
+}
+
+function refresh() {
+  const wrap = document.getElementById('previewWrap');
+  const canvas = document.getElementById('preview-canvas');
+  const W0 = wrap.clientWidth  - 48;
+  const H0 = wrap.clientHeight - 48;
+
+  // fit 16:9 into wrap
+  let pvW, pvH;
+  if (W0 / H0 > 16/9) { pvH = H0; pvW = pvH * 16/9; }
+  else                  { pvW = W0; pvH = pvW / (16/9); }
+  pvW = Math.max(100, Math.round(pvW));
+  pvH = Math.max(60,  Math.round(pvH));
+
+  const p = P();
+  drawCanvas(canvas, pvW, pvH, p);
+
+  const hasImg = S.images.length > 0;
+  document.getElementById('emptyHint').style.display = hasImg ? 'none' : 'block';
+  canvas.style.display = hasImg ? 'block' : 'none';
+
+  const rows = Math.ceil(S.images.length / p.cols);
+  document.getElementById('statusInfo').textContent = hasImg
+    ? `${S.images.length} 枚 ・ ${p.cols} 列 ${rows} 行 ・ 出力: ${p.outputSize.replace('x',' × ')}`
+    : '—';
+}
+
+// ── Export ────────────────────────────────────────────────────
+function doExport(fmt) {
+  if (S.images.length === 0) { alert('スライドを追加してください'); return; }
+  const p = P();
+  const [W, H] = p.outputSize.split('x').map(Number);
+  const scale = W / 1920;
+  const canvas = document.createElement('canvas');
+  drawCanvas(canvas, W, H, p, scale);
+  const mime = fmt === 'jpg' ? 'image/jpeg' : 'image/png';
+  const a = document.createElement('a');
+  a.href = canvas.toDataURL(mime, 0.95);
+  a.download = `slide-collage-${Date.now()}.${fmt}`;
+  a.click();
+}
+
+// ── File handling ─────────────────────────────────────────────
+function loadFiles(files) {
+  const ps = Array.from(files).map(f => new Promise(res => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => res({ id: S.nextId++, name: f.name, img, dataUrl: e.target.result });
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(f);
+  }));
+  Promise.all(ps).then(loaded => {
+    S.images.push(...loaded);
+    // Auto-suggest cols
+    const n = S.images.length;
+    const sc = Math.min(8, Math.max(1, Math.round(Math.sqrt(n * RATIO))));
+    const colsEl = document.getElementById('cols');
+    colsEl.value = sc;
+    document.getElementById('colsVal').textContent = sc;
+    renderThumbs();
+    schedule();
+  });
+}
+
+function renderThumbs() {
+  const list = document.getElementById('thumbList');
+  list.innerHTML = '';
+  S.images.forEach((im, idx) => {
+    const item = document.createElement('div');
+    item.className = 'thumb-item';
+    item.draggable = true;
+    item.dataset.idx = idx;
+
+    const thumb = document.createElement('img');
+    thumb.src = im.dataUrl;
+
+    const name = document.createElement('span');
+    name.className = 'thumb-name';
+    name.textContent = `${idx + 1}. ${im.name}`;
+
+    const rm = document.createElement('button');
+    rm.className = 'thumb-remove';
+    rm.textContent = '×';
+    rm.onclick = e => { e.stopPropagation(); S.images.splice(idx, 1); renderThumbs(); schedule(); };
+
+    item.appendChild(thumb);
+    item.appendChild(name);
+    item.appendChild(rm);
+
+    item.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', idx); item.classList.add('dragging'); });
+    item.addEventListener('dragend',   () => item.classList.remove('dragging'));
+    item.addEventListener('dragover',  e => e.preventDefault());
+    item.addEventListener('drop', e => {
+      const from = +e.dataTransfer.getData('text/plain');
+      const to   = +item.dataset.idx;
+      if (from !== to) {
+        S.images.splice(to, 0, S.images.splice(from, 1)[0]);
+        renderThumbs(); schedule();
+      }
+    });
+
+    list.appendChild(item);
+  });
+}
+
+// ── Upload zone ───────────────────────────────────────────────
+const zone = document.getElementById('uploadZone');
+const fi   = document.getElementById('fileInput');
+zone.addEventListener('click', () => fi.click());
+fi.addEventListener('change', e => loadFiles(e.target.files));
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag-over'); loadFiles(e.dataTransfer.files); });
+
+// ── Sliders ───────────────────────────────────────────────────
+[
+  ['cols',     'colsVal',    v => Math.round(v)],
+  ['gap',      'gapVal',     v => v + 'px'],
+  ['padding',  'paddingVal', v => v + 'px'],
+  ['offset',   'offsetVal',  v => Math.round(v) + '%'],
+  ['rotation', 'rotationVal',v => (v >= 0 ? '+' : '') + (+v).toFixed(1) + '°'],
+  ['zoom',     'zoomVal',    v => Math.round(v) + '%'],
+  ['radius',   'radiusVal',  v => v + 'px'],
+].forEach(([id, valId, fmt]) => {
+  document.getElementById(id).addEventListener('input', e => {
+    document.getElementById(valId).textContent = fmt(e.target.value);
+    schedule();
+  });
+});
+
+document.getElementById('bgColor').addEventListener('input', e => {
+  document.getElementById('bgColorHex').textContent = e.target.value;
+  schedule();
+});
+document.getElementById('outputSize').addEventListener('change', schedule);
+
+// ── Resize ────────────────────────────────────────────────────
+new ResizeObserver(schedule).observe(document.getElementById('previewWrap'));
+
+// ── Init ──────────────────────────────────────────────────────
+schedule();
+</script>
+</body>
+</html>
