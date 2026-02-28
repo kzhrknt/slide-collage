@@ -30,6 +30,12 @@
 <meta property="twitter:description" content="スライドのポートフォリオ作成をもっと簡単に。複数のスライド画像から1枚のコラージュ画像を生成するWebツール。">
 <meta property="twitter:image" content="https://slide-collage.vercel.app/og-image.png">
 
+<!-- Vercel Web Analytics -->
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@300;400&display=swap');
 
@@ -485,7 +491,7 @@
 const S = { images: [], nextId: 0 };
 const RATIO = 16 / 9;
 
-// ── Generate Sample Slides ────────────────────────────────────
+// ── Generate Sample Slides ��───────────────────────────────────
 function generateSampleSlides() {
   const count = 30;
   const canvas = document.createElement('canvas');
