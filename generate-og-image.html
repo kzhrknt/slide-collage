@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>OG Image Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  body {
+    font-family: sans-serif;
+    padding: 40px;
+    text-align: center;
+  }
+  canvas {
+    border: 1px solid #ccc;
+    margin: 20px auto;
+    display: block;
+  }
+  button {
+    padding: 12px 24px;
+    font-size: 14px;
+    cursor: pointer;
+    background: #2d4a3e;
+    color: white;
+    border: none;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+  <h1>OG Image Generator for Slide Collage</h1>
+  <canvas id="canvas"></canvas>
+  <button onclick="downloadImage()">Download OG Image (1200x630)</button>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // OG image size
+    canvas.width = 1200;
+    canvas.height = 630;
+
+    // Wait for fonts to load
+    document.fonts.ready.then(() => {
+      drawOGImage();
+    });
+
+    function drawOGImage() {
+      // Background
+      ctx.fillStyle = '#f5f3ef';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Accent box
+      ctx.fillStyle = '#2d4a3e';
+      ctx.fillRect(60, 60, 8, 510);
+
+      // Title
+      ctx.fillStyle = '#1a1917';
+      ctx.font = '300 96px "Cormorant Garamond", serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('Slide Collage', 100, 180);
+
+      // Subtitle
+      ctx.fillStyle = '#6b6860';
+      ctx.font = '300 36px "DM Mono", monospace';
+      ctx.fillText('Portfolio Layout Generator', 100, 240);
+
+      // Description
+      ctx.fillStyle = '#6b6860';
+      ctx.font = '400 28px "DM Mono", monospace';
+      ctx.fillText('スライドのポートフォリオ作成を、', 100, 340);
+      ctx.fillText('もっと簡単に', 100, 380);
+
+      // Features (bullets)
+      ctx.font = '300 22px "DM Mono", monospace';
+      const features = [
+        '✓ 最大30枚のグリッドレイアウト',
+        '✓ 機密情報のぼかし機能',
+        '✓ 4K出力対応',
+        '✓ 完全無料・ブラウザ完結'
+      ];
+
+      features.forEach((text, i) => {
+        ctx.fillText(text, 100, 460 + i * 32);
+      });
+
+      // URL
+      ctx.fillStyle = '#2d4a3e';
+      ctx.font = '400 24px "DM Mono", monospace';
+      ctx.fillText('slide-collage.vercel.app', 100, 590);
+
+      // Grid decoration (right side)
+      ctx.strokeStyle = '#e0ddd8';
+      ctx.lineWidth = 2;
+      const gridSize = 80;
+      const gridGap = 12;
+      const startX = 800;
+      const startY = 150;
+
+      for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 3; col++) {
+          const x = startX + col * (gridSize + gridGap);
+          const y = startY + row * (gridSize + gridGap);
+          ctx.strokeRect(x, y, gridSize, gridSize);
+        }
+      }
+    }
+
+    function downloadImage() {
+      const link = document.createElement('a');
+      link.download = 'og-image.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+  </script>
+</body>
+</html>
