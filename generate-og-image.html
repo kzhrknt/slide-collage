@@ -26,12 +26,21 @@
     border: none;
     border-radius: 4px;
   }
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .status {
+    margin: 20px;
+    color: #666;
+  }
 </style>
 </head>
 <body>
   <h1>OG Image Generator for Slide Collage</h1>
+  <div class="status" id="status">画像を読み込み中...</div>
   <canvas id="canvas"></canvas>
-  <button onclick="downloadImage()">Download OG Image (1200x630)</button>
+  <button id="downloadBtn" onclick="downloadImage()" disabled>Download OG Image (1200x630)</button>
 
   <script>
     const canvas = document.getElementById('canvas');
@@ -41,70 +50,67 @@
     canvas.width = 1200;
     canvas.height = 630;
 
-    // Wait for fonts to load
-    document.fonts.ready.then(() => {
-      drawOGImage();
-    });
+    // Load background image
+    const bgImage = new Image();
+    bgImage.src = 'sample.png';
+
+    bgImage.onload = () => {
+      document.getElementById('status').textContent = '画像読み込み完了！フォント読み込み中...';
+      document.fonts.ready.then(() => {
+        drawOGImage();
+        document.getElementById('status').textContent = '✓ 生成完了！ダウンロードできます';
+        document.getElementById('downloadBtn').disabled = false;
+      });
+    };
+
+    bgImage.onerror = () => {
+      document.getElementById('status').textContent = '❌ エラー: sample.pngが見つかりません';
+      document.getElementById('status').style.color = 'red';
+    };
 
     function drawOGImage() {
-      // Background
-      ctx.fillStyle = '#f5f3ef';
+      // Draw background image (cover style)
+      const imgRatio = bgImage.width / bgImage.height;
+      const canvasRatio = canvas.width / canvas.height;
+
+      let drawWidth, drawHeight, offsetX, offsetY;
+
+      if (imgRatio > canvasRatio) {
+        // Image is wider
+        drawHeight = canvas.height;
+        drawWidth = drawHeight * imgRatio;
+        offsetX = (canvas.width - drawWidth) / 2;
+        offsetY = 0;
+      } else {
+        // Image is taller
+        drawWidth = canvas.width;
+        drawHeight = drawWidth / imgRatio;
+        offsetX = 0;
+        offsetY = (canvas.height - drawHeight) / 2;
+      }
+
+      ctx.drawImage(bgImage, offsetX, offsetY, drawWidth, drawHeight);
+
+      // Black gradient overlay (bottom to top)
+      const gradient = ctx.createLinearGradient(0, canvas.height, 0, 0);
+      gradient.addColorStop(0, 'rgba(0, 0, 0, 0.8)');
+      gradient.addColorStop(0.5, 'rgba(0, 0, 0, 0.4)');
+      gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+      ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Accent box
-      ctx.fillStyle = '#2d4a3e';
-      ctx.fillRect(60, 60, 8, 510);
+      // Title - Slide Collage
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '300 110px "Cormorant Garamond", serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Slide Collage', canvas.width / 2, canvas.height / 2 + 30);
 
-      // Title
-      ctx.fillStyle = '#1a1917';
-      ctx.font = '300 96px "Cormorant Garamond", serif';
-      ctx.textAlign = 'left';
-      ctx.fillText('Slide Collage', 100, 180);
-
-      // Subtitle
-      ctx.fillStyle = '#6b6860';
-      ctx.font = '300 36px "DM Mono", monospace';
-      ctx.fillText('Portfolio Layout Generator', 100, 240);
-
-      // Description
-      ctx.fillStyle = '#6b6860';
-      ctx.font = '400 28px "DM Mono", monospace';
-      ctx.fillText('スライドのポートフォリオ作成を、', 100, 340);
-      ctx.fillText('もっと簡単に', 100, 380);
-
-      // Features (bullets)
-      ctx.font = '300 22px "DM Mono", monospace';
-      const features = [
-        '✓ 最大30枚のグリッドレイアウト',
-        '✓ 機密情報のぼかし機能',
-        '✓ 4K出力対応',
-        '✓ 完全無料・ブラウザ完結'
-      ];
-
-      features.forEach((text, i) => {
-        ctx.fillText(text, 100, 460 + i * 32);
-      });
-
-      // URL
-      ctx.fillStyle = '#2d4a3e';
-      ctx.font = '400 24px "DM Mono", monospace';
-      ctx.fillText('slide-collage.vercel.app', 100, 590);
-
-      // Grid decoration (right side)
-      ctx.strokeStyle = '#e0ddd8';
-      ctx.lineWidth = 2;
-      const gridSize = 80;
-      const gridGap = 12;
-      const startX = 800;
-      const startY = 150;
-
-      for (let row = 0; row < 3; row++) {
-        for (let col = 0; col < 3; col++) {
-          const x = startX + col * (gridSize + gridGap);
-          const y = startY + row * (gridSize + gridGap);
-          ctx.strokeRect(x, y, gridSize, gridSize);
-        }
-      }
+      // Subtitle - Portfolio Layout Generator
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+      ctx.font = '300 32px "DM Mono", monospace';
+      ctx.fillText('Portfolio Layout Generator', canvas.width / 2, canvas.height / 2 + 100);
     }
 
     function downloadImage() {
