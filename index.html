@@ -124,6 +124,17 @@
   }
   .thumb-remove:hover { opacity: 1; color: #b94040; }
 
+  .thumb-blur {
+    border: none; background: none; cursor: pointer;
+    font-size: 11px; opacity: 0.5; padding: 2px 4px;
+    transition: opacity 0.12s; flex-shrink: 0;
+    border-radius: 2px;
+  }
+  .thumb-blur:hover { opacity: 1; }
+  .thumb-blur.active { opacity: 1; background: var(--accent); color: #fff; }
+
+  .thumb-item.blurred img { filter: blur(3px); opacity: 0.6; }
+
   .divider { border: none; border-top: 1px solid var(--border); }
 
   .ctrl-block { display: flex; flex-direction: column; gap: 11px; }
@@ -250,6 +261,25 @@
   .btn-export-png { background: var(--accent); color: #fff; }
   .btn-export-jpg { background: var(--ink); color: #fff; }
 
+  .btn-share {
+    padding: 7px 14px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+    color: var(--ink);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-share:hover { background: var(--hover); border-color: var(--accent); }
+
   ::-webkit-scrollbar { width: 3px; }
   ::-webkit-scrollbar-thumb { background: var(--border); }
 </style>
@@ -275,6 +305,8 @@
       </div>
       <div style="height:7px"></div>
       <div class="thumb-list" id="thumbList"></div>
+      <div style="height:7px"></div>
+      <button class="btn btn-secondary" onclick="clearAllSlides()" style="font-size:8.5px;padding:8px;">すべてクリア</button>
     </div>
 
     <hr class="divider">
@@ -342,6 +374,11 @@
           <span class="ctrl-val" id="radiusVal">4px</span>
         </div>
         <div class="ctrl-row">
+          <span class="ctrl-label">ぼかし強度<small>🔒マークで設定したスライド</small></span>
+          <input type="range" id="blurStrength" min="0" max="30" value="12" step="1">
+          <span class="ctrl-val" id="blurStrengthVal">12px</span>
+        </div>
+        <div class="ctrl-row">
           <span class="ctrl-label">出力サイズ</span>
           <select id="outputSize">
             <option value="1920x1080">1920 × 1080</option>
@@ -352,6 +389,13 @@
           </select>
         </div>
       </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Reset Button -->
+    <div>
+      <button class="btn btn-secondary" onclick="resetParameters()">パラメーターをリセット</button>
     </div>
 
   </div>
@@ -375,6 +419,10 @@
     <div class="status-bar">
       <span class="status-info" id="statusInfo">—</span>
       <div class="export-btns">
+        <a href="#" class="btn-share" id="shareBtn" target="_blank" rel="noopener noreferrer">
+          <span>𝕏</span>
+          <span>シェア</span>
+        </a>
         <button class="btn-export btn-export-png" onclick="doExport('png')">PNG 保存</button>
         <button class="btn-export btn-export-jpg" onclick="doExport('jpg')">JPG 保存</button>
       </div>
@@ -388,6 +436,113 @@
 const S = { images: [], nextId: 0 };
 const RATIO = 16 / 9;
 
+// ── Generate Sample Slides ────────────────────────────────────
+function generateSampleSlides() {
+  const count = 30;
+  const canvas = document.createElement('canvas');
+  canvas.width = 1920;
+  canvas.height = 1080;
+  const ctx = canvas.getContext('2d');
+
+  for (let i = 0; i < count; i++) {
+    // Generate gray colors with varying lightness
+    const lightness = 40 + (i % 6) * 8; // 40%, 48%, 56%, 64%, 72%, 80%
+    const bgColor = `hsl(0, 0%, ${lightness}%)`;
+
+    // Draw background
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw slide number
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.font = 'bold 180px "DM Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`${i + 1}`, canvas.width / 2, canvas.height / 2);
+
+    // Draw label
+    ctx.font = '48px "DM Mono", monospace';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    ctx.fillText('SAMPLE SLIDE', canvas.width / 2, canvas.height / 2 + 140);
+
+    // Convert to image
+    const dataUrl = canvas.toDataURL('image/png');
+    const img = new Image();
+    img.src = dataUrl;
+
+    S.images.push({
+      id: S.nextId++,
+      name: `Sample ${i + 1}.png`,
+      img: img,
+      dataUrl: dataUrl,
+      isSample: true,
+      isBlurred: false
+    });
+  }
+
+  // Auto-suggest columns based on sample count
+  const sc = Math.min(8, Math.max(1, Math.round(Math.sqrt(count * RATIO))));
+  document.getElementById('cols').value = sc;
+  document.getElementById('colsVal').textContent = sc;
+
+  renderThumbs();
+  schedule();
+}
+
+// ── Reset Parameters ──────────────────────────────────────────
+function resetParameters() {
+  // Reset all controls to default values
+  const defaults = {
+    cols: 3,
+    gap: 8,
+    padding: 24,
+    offset: 0,
+    rotation: 0,
+    zoom: 100,
+    bgColor: '#1a1917',
+    radius: 4,
+    blurStrength: 12,
+    outputSize: '1920x1080'
+  };
+
+  // Update input values
+  document.getElementById('cols').value = defaults.cols;
+  document.getElementById('gap').value = defaults.gap;
+  document.getElementById('padding').value = defaults.padding;
+  document.getElementById('offset').value = defaults.offset;
+  document.getElementById('rotation').value = defaults.rotation;
+  document.getElementById('zoom').value = defaults.zoom;
+  document.getElementById('bgColor').value = defaults.bgColor;
+  document.getElementById('radius').value = defaults.radius;
+  document.getElementById('blurStrength').value = defaults.blurStrength;
+  document.getElementById('outputSize').value = defaults.outputSize;
+
+  // Update display values
+  document.getElementById('colsVal').textContent = defaults.cols;
+  document.getElementById('gapVal').textContent = defaults.gap + 'px';
+  document.getElementById('paddingVal').textContent = defaults.padding + 'px';
+  document.getElementById('offsetVal').textContent = defaults.offset + '%';
+  document.getElementById('rotationVal').textContent = (defaults.rotation >= 0 ? '+' : '') + defaults.rotation.toFixed(1) + '°';
+  document.getElementById('zoomVal').textContent = defaults.zoom + '%';
+  document.getElementById('bgColorHex').textContent = defaults.bgColor;
+  document.getElementById('radiusVal').textContent = defaults.radius + 'px';
+  document.getElementById('blurStrengthVal').textContent = defaults.blurStrength + 'px';
+
+  // Refresh canvas
+  schedule();
+}
+
+// ── Clear All Slides ──────────────────────────────────────────
+function clearAllSlides() {
+  if (S.images.length === 0) return;
+
+  if (confirm('すべてのスライドを削除しますか？')) {
+    S.images = [];
+    renderThumbs();
+    schedule();
+  }
+}
+
 // ── Params ────────────────────────────────────────────────────
 function P() {
   return {
@@ -399,6 +554,7 @@ function P() {
     zoom:       parseFloat(v('zoom')) / 100,       // 1.0 = 100% (default)
     bgColor:    v('bgColor'),
     radius:     parseInt(v('radius')),
+    blurStrength: parseInt(v('blurStrength')),
     outputSize: v('outputSize'),
   };
 }
@@ -499,7 +655,8 @@ function drawCanvas(canvas, W, H, p, radiusScale = 1) {
   const r = p.radius * radiusScale;
 
   tiles.forEach(t => {
-    const img = S.images[t.imgIdx].img;
+    const imgData = S.images[t.imgIdx];
+    const img = imgData.img;
     ctx.save();
     ctx.translate(t.cx, t.cy);
     ctx.rotate(t.angle);
@@ -514,6 +671,12 @@ function drawCanvas(canvas, W, H, p, radiusScale = 1) {
     ctx.fillStyle = p.bgColor;
     ctx.fillRect(-hw, -hh, t.w, t.h);
 
+    // Apply blur filter if needed
+    if (imgData.isBlurred) {
+      const blurAmount = p.blurStrength * radiusScale;
+      ctx.filter = `blur(${blurAmount}px)`;
+    }
+
     // Contain: full image visible, 16:9 slot
     const iw = img.naturalWidth, ih = img.naturalHeight;
     const iRatio = iw / ih;
@@ -522,6 +685,10 @@ function drawCanvas(canvas, W, H, p, radiusScale = 1) {
     else                 { dh = t.h; dw = t.h * iRatio; }
 
     ctx.drawImage(img, -dw / 2, -dh / 2, dw, dh);
+
+    // Reset filter
+    ctx.filter = 'none';
+
     ctx.restore();
   });
 
@@ -597,12 +764,15 @@ function loadFiles(files) {
     const reader = new FileReader();
     reader.onload = e => {
       const img = new Image();
-      img.onload = () => res({ id: S.nextId++, name: f.name, img, dataUrl: e.target.result });
+      img.onload = () => res({ id: S.nextId++, name: f.name, img, dataUrl: e.target.result, isBlurred: false });
       img.src = e.target.result;
     };
     reader.readAsDataURL(f);
   }));
   Promise.all(ps).then(loaded => {
+    // Remove sample slides when user uploads their own images
+    S.images = S.images.filter(img => !img.isSample);
+
     S.images.push(...loaded);
     // Auto-suggest cols
     const n = S.images.length;
@@ -620,7 +790,7 @@ function renderThumbs() {
   list.innerHTML = '';
   S.images.forEach((im, idx) => {
     const item = document.createElement('div');
-    item.className = 'thumb-item';
+    item.className = 'thumb-item' + (im.isBlurred ? ' blurred' : '');
     item.draggable = true;
     item.dataset.idx = idx;
 
@@ -631,6 +801,17 @@ function renderThumbs() {
     name.className = 'thumb-name';
     name.textContent = `${idx + 1}. ${im.name}`;
 
+    const blurBtn = document.createElement('button');
+    blurBtn.className = 'thumb-blur' + (im.isBlurred ? ' active' : '');
+    blurBtn.textContent = '🔒';
+    blurBtn.title = 'ぼかしを切り替え';
+    blurBtn.onclick = e => {
+      e.stopPropagation();
+      S.images[idx].isBlurred = !S.images[idx].isBlurred;
+      renderThumbs();
+      schedule();
+    };
+
     const rm = document.createElement('button');
     rm.className = 'thumb-remove';
     rm.textContent = '×';
@@ -638,6 +819,7 @@ function renderThumbs() {
 
     item.appendChild(thumb);
     item.appendChild(name);
+    item.appendChild(blurBtn);
     item.appendChild(rm);
 
     item.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', idx); item.classList.add('dragging'); });
@@ -674,6 +856,7 @@ zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('
   ['rotation', 'rotationVal',v => (v >= 0 ? '+' : '') + (+v).toFixed(1) + '°'],
   ['zoom',     'zoomVal',    v => Math.round(v) + '%'],
   ['radius',   'radiusVal',  v => v + 'px'],
+  ['blurStrength', 'blurStrengthVal', v => v + 'px'],
 ].forEach(([id, valId, fmt]) => {
   document.getElementById(id).addEventListener('input', e => {
     document.getElementById(valId).textContent = fmt(e.target.value);
@@ -690,8 +873,14 @@ document.getElementById('outputSize').addEventListener('change', schedule);
 // ── Resize ────────────────────────────────────────────────────
 new ResizeObserver(schedule).observe(document.getElementById('previewWrap'));
 
+// ── Share Button ──────────────────────────────────────────────
+const shareBtn = document.getElementById('shareBtn');
+const shareText = 'Slide Collageでポートフォリオレイアウトを作成しました！';
+const shareUrl = 'https://slide-collage.vercel.app/';
+shareBtn.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+
 // ── Init ──────────────────────────────────────────────────────
-schedule();
+generateSampleSlides();
 </script>
 </body>
 </html>
