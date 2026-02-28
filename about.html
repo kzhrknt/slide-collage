@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — Slide Collage</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@300;400&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f3ef;
+    --surface: #ffffff;
+    --ink: #1a1917;
+    --ink2: #6b6860;
+    --accent: #2d4a3e;
+    --border: #e0ddd8;
+    --hover: #f0ede8;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'DM Mono', monospace;
+    line-height: 1.6;
+  }
+
+  /* ── Header ── */
+  header {
+    padding: 18px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  header .logo {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 300;
+    letter-spacing: 0.04em;
+  }
+
+  header nav a {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink2);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  header nav a:hover { color: var(--accent); }
+
+  /* ── Sections ── */
+  section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 80px 32px;
+  }
+
+  .hero {
+    text-align: center;
+    padding: 120px 32px 100px;
+  }
+
+  .hero h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 48px;
+    font-weight: 300;
+    line-height: 1.3;
+    margin-bottom: 24px;
+    letter-spacing: 0.02em;
+  }
+
+  .hero p {
+    font-size: 14px;
+    color: var(--ink2);
+    margin-bottom: 40px;
+    line-height: 1.8;
+  }
+
+  .cta-btn {
+    display: inline-block;
+    padding: 14px 36px;
+    background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 2px;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    transition: opacity 0.2s;
+  }
+  .cta-btn:hover { opacity: 0.85; }
+
+  /* ── Problem ── */
+  .problem {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-label {
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink2);
+    margin-bottom: 24px;
+  }
+
+  h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 300;
+    margin-bottom: 24px;
+    letter-spacing: 0.02em;
+  }
+
+  .problem-list {
+    list-style: none;
+    margin-top: 32px;
+  }
+
+  .problem-list li {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--ink2);
+  }
+
+  .problem-list li:before {
+    content: "❌ ";
+    margin-right: 8px;
+  }
+
+  .problem-list li:last-child { border-bottom: none; }
+
+  /* ── Features ── */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 32px;
+    margin-top: 48px;
+  }
+
+  .feature-card {
+    padding: 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+  }
+
+  .feature-card .icon {
+    font-size: 28px;
+    margin-bottom: 16px;
+  }
+
+  .feature-card h4 {
+    font-size: 14px;
+    font-weight: 400;
+    margin-bottom: 12px;
+    letter-spacing: 0.04em;
+  }
+
+  .feature-card p {
+    font-size: 11px;
+    color: var(--ink2);
+    line-height: 1.7;
+  }
+
+  /* ── How it works ── */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 40px;
+    margin-top: 48px;
+  }
+
+  .step {
+    text-align: center;
+  }
+
+  .step-number {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 400;
+    margin: 0 auto 20px;
+  }
+
+  .step h4 {
+    font-size: 13px;
+    margin-bottom: 12px;
+    letter-spacing: 0.04em;
+  }
+
+  .step p {
+    font-size: 10px;
+    color: var(--ink2);
+    line-height: 1.7;
+  }
+
+  /* ── CTA Section ── */
+  .cta-section {
+    text-align: center;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 100px 32px;
+  }
+
+  .cta-section h3 {
+    margin-bottom: 32px;
+  }
+
+  /* ── Footer ── */
+  footer {
+    padding: 32px;
+    text-align: center;
+    font-size: 9px;
+    color: var(--ink2);
+    letter-spacing: 0.08em;
+    border-top: 1px solid var(--border);
+  }
+
+  footer a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 768px) {
+    .hero h2 { font-size: 36px; }
+    section { padding: 60px 24px; }
+    .features-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <h1>Slide Collage</h1>
+  </div>
+  <nav>
+    <a href="index.html">アプリを開く →</a>
+  </nav>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <h2>スライドのポートフォリオ作成を、<br>もっと簡単に</h2>
+  <p>複数のスライド画像から1枚のコラージュ画像を生成するWebツール<br>無料・登録不要・ブラウザ完結</p>
+  <a href="index.html" class="cta-btn">今すぐ使う</a>
+</section>
+
+<!-- Problem -->
+<section class="problem">
+  <div class="section-label">01 — 課題</div>
+  <h3>スライド稼業のあるある</h3>
+  <p>提案資料がポートフォリオの一部になる私たちにとって、こんな悩みはありませんか？</p>
+  <ul class="problem-list">
+    <li>複数のスライドをグリッドで並べるのが手間</li>
+    <li>機密情報を1枚ずつぼかすのが大変</li>
+    <li>レイアウト調整に時間がかかる</li>
+    <li>毎回同じ作業を繰り返すのが面倒</li>
+  </ul>
+</section>
+
+<!-- Features -->
+<section>
+  <div class="section-label">02 — 機能</div>
+  <h3>できること</h3>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="icon">📊</div>
+      <h4>グリッドレイアウト</h4>
+      <p>最大30枚のスライドを自動でグリッド配置。列数・間隔・余白を自由に調整できます。</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🔒</div>
+      <h4>スライド単位のぼかし</h4>
+      <p>機密情報を含むスライドだけをワンクリックでぼかし。強度も0〜30pxで調整可能です。</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🎨</div>
+      <h4>柔軟なカスタマイズ</h4>
+      <p>列ずらし・回転・ズーム・背景色・角丸など、細かいデザイン調整が可能です。</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">💾</div>
+      <h4>高解像度出力</h4>
+      <p>フルHD / 2K / 4K など、用途に応じた解像度でPNG・JPG出力できます。</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🔐</div>
+      <h4>完全クライアントサイド</h4>
+      <p>画像はブラウザ内で処理され、サーバーには送信されません。安心して使えます。</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">⚡</div>
+      <h4>サンプル付き</h4>
+      <p>初回訪問時に30枚のサンプルスライドを自動生成。すぐに機能を試せます。</p>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section>
+  <div class="section-label">03 — 使い方</div>
+  <h3>3ステップで完成</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="step-number">1</div>
+      <h4>アップロード</h4>
+      <p>スライド画像をドラッグ&ドロップ、またはファイルを選択</p>
+    </div>
+    <div class="step">
+      <div class="step-number">2</div>
+      <h4>調整</h4>
+      <p>グリッド・レイアウトを調整。機密情報には🔒でぼかしを適用</p>
+    </div>
+    <div class="step">
+      <div class="step-number">3</div>
+      <h4>出力</h4>
+      <p>PNG/JPGで書き出し。SNSやポートフォリオに使用</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <h3>今すぐ無料で使ってみる</h3>
+  <a href="index.html" class="cta-btn">アプリを開く</a>
+</section>
+
+<footer>
+  <p>Made with Claude Code ☕ | <a href="https://github.com/kzhrknt/slide-collage" target="_blank">GitHub</a> | <a href="https://twitter.com/intent/tweet?text=Slide%20Collage%E3%81%A7%E3%83%9D%E3%83%BC%E3%83%88%E3%83%95%E3%82%A9%E3%83%AA%E3%82%AA%E3%83%AC%E3%82%A4%E3%82%A2%E3%82%A6%E3%83%88%E3%82%92%E4%BD%9C%E6%88%90%E3%81%97%E3%81%BE%E3%81%97%E3%81%9F%EF%BC%81&url=https://slide-collage.vercel.app/" target="_blank">𝕏 Share</a></p>
+</footer>
+
+</body>
+</html>
