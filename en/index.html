@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Slide Collage — Portfolio Layout Generator</title>
-<meta name="description" content="スライドのポートフォリオ作成をもっと簡単に。複数のスライド画像から1枚のコラージュ画像を生成するWebツール。無料・登録不要・ブラウザ完結。">
-<meta name="keywords" content="スライド, コラージュ, ポートフォリオ, グリッドレイアウト, 画像生成, プレゼンテーション, 登壇資料">
+<meta name="description" content="Generate portfolio layouts from presentation slides. Simple, fast, browser-based tool. Free, no sign-up required.">
+<meta name="keywords" content="slide collage, portfolio generator, grid layout, presentation, image generation, blur feature">
 <meta name="author" content="kzhrknt">
 <meta name="robots" content="index, follow">
-<link rel="canonical" href="https://slide-collage.vercel.app/">
+<link rel="canonical" href="https://slide-collage.vercel.app/en/">
 
 <!-- Favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -18,16 +18,16 @@
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://slide-collage.vercel.app/">
+<meta property="og:url" content="https://slide-collage.vercel.app/en/">
 <meta property="og:title" content="Slide Collage — Portfolio Layout Generator">
-<meta property="og:description" content="スライドのポートフォリオ作成をもっと簡単に。複数のスライド画像から1枚のコラージュ画像を生成するWebツール。">
+<meta property="og:description" content="Generate portfolio layouts from presentation slides. Simple, fast, browser-based.">
 <meta property="og:image" content="https://slide-collage.vercel.app/og-image.png">
 
 <!-- Twitter -->
 <meta property="twitter:card" content="summary_large_image">
-<meta property="twitter:url" content="https://slide-collage.vercel.app/">
+<meta property="twitter:url" content="https://slide-collage.vercel.app/en/">
 <meta property="twitter:title" content="Slide Collage — Portfolio Layout Generator">
-<meta property="twitter:description" content="スライドのポートフォリオ作成をもっと簡単に。複数のスライド画像から1枚のコラージュ画像を生成するWebツール。">
+<meta property="twitter:description" content="Generate portfolio layouts from presentation slides. Simple, fast, browser-based.">
 <meta property="twitter:image" content="https://slide-collage.vercel.app/og-image.png">
 
 <style>
@@ -335,7 +335,7 @@
     <span>Portfolio Layout Generator</span>
   </div>
   <nav>
-    <a href="en/index.html">English</a>
+    <a href="../index.html">日本語</a>
     <a href="about.html">About</a>
   </nav>
 </header>
@@ -347,35 +347,35 @@
 
     <!-- 01 Upload -->
     <div>
-      <div class="section-label">01 — スライドを追加</div>
+      <div class="section-label">01 — Add Slides</div>
       <div class="upload-zone" id="uploadZone">
         <input type="file" id="fileInput" accept="image/*" multiple>
-        <p>ドラッグ＆ドロップ<br>または<strong>ファイルを選択</strong><br><span style="font-size:8.5px;opacity:.6">PNG / JPG / WEBP</span></p>
+        <p>Drag & Drop<br>or<strong>Select Files</strong><br><span style="font-size:8.5px;opacity:.6">PNG / JPG / WEBP</span></p>
       </div>
       <div style="height:7px"></div>
       <div class="thumb-list" id="thumbList"></div>
       <div style="height:7px"></div>
-      <button class="btn btn-secondary" onclick="clearAllSlides()" style="font-size:8.5px;padding:8px;">すべてクリア</button>
+      <button class="btn btn-secondary" onclick="clearAllSlides()" style="font-size:8.5px;padding:8px;">Clear All</button>
     </div>
 
     <hr class="divider">
 
     <!-- 02 Grid -->
     <div>
-      <div class="section-label">02 — グリッド</div>
+      <div class="section-label">02 — Grid</div>
       <div class="ctrl-block">
         <div class="ctrl-row">
-          <span class="ctrl-label">列数</span>
+          <span class="ctrl-label">Columns</span>
           <input type="range" id="cols" min="1" max="8" value="3" step="1">
           <span class="ctrl-val" id="colsVal">3</span>
         </div>
         <div class="ctrl-row">
-          <span class="ctrl-label">間隔</span>
+          <span class="ctrl-label">Gap</span>
           <input type="range" id="gap" min="0" max="40" value="8" step="1">
           <span class="ctrl-val" id="gapVal">8px</span>
         </div>
         <div class="ctrl-row">
-          <span class="ctrl-label">外側余白</span>
+          <span class="ctrl-label">Padding</span>
           <input type="range" id="padding" min="0" max="100" value="24" step="2">
           <span class="ctrl-val" id="paddingVal">24px</span>
         </div>
@@ -386,20 +386,20 @@
 
     <!-- 03 Offset & Rotation -->
     <div>
-      <div class="section-label">03 — ずらし / 回転 / ズーム</div>
+      <div class="section-label">03 — Offset / Rotation / Zoom</div>
       <div class="ctrl-block">
         <div class="ctrl-row">
-          <span class="ctrl-label">列ずらし<small>偶数列を縦方向にずらす</small></span>
+          <span class="ctrl-label">Column Offset<small>Shift even columns vertically</small></span>
           <input type="range" id="offset" min="0" max="100" value="0" step="1">
           <span class="ctrl-val" id="offsetVal">0%</span>
         </div>
         <div class="ctrl-row">
-          <span class="ctrl-label">全体の回転<small>−45° 〜 +45°</small></span>
+          <span class="ctrl-label">Rotation<small>−45° to +45°</small></span>
           <input type="range" id="rotation" min="-45" max="45" value="0" step="0.5">
           <span class="ctrl-val" id="rotationVal">0°</span>
         </div>
         <div class="ctrl-row">
-          <span class="ctrl-label">ズーム<small>100% = デフォルト表示</small></span>
+          <span class="ctrl-label">Zoom<small>100% = Default</small></span>
           <input type="range" id="zoom" min="100" max="300" value="100" step="1">
           <span class="ctrl-val" id="zoomVal">100%</span>
         </div>
@@ -410,25 +410,25 @@
 
     <!-- 04 Appearance -->
     <div>
-      <div class="section-label">04 — 見た目</div>
+      <div class="section-label">04 — Appearance</div>
       <div class="ctrl-block">
         <div class="ctrl-row">
-          <span class="ctrl-label">背景色</span>
+          <span class="ctrl-label">Background</span>
           <input type="color" id="bgColor" value="#1a1917">
           <span style="font-size:9px;color:var(--ink2);margin-left:4px" id="bgColorHex">#1a1917</span>
         </div>
         <div class="ctrl-row">
-          <span class="ctrl-label">角丸</span>
+          <span class="ctrl-label">Corners</span>
           <input type="range" id="radius" min="0" max="20" value="4" step="1">
           <span class="ctrl-val" id="radiusVal">4px</span>
         </div>
         <div class="ctrl-row">
-          <span class="ctrl-label">ぼかし強度<small>🔒マークで設定したスライド</small></span>
+          <span class="ctrl-label">Blur Strength<small>For 🔒 marked slides</small></span>
           <input type="range" id="blurStrength" min="0" max="30" value="12" step="1">
           <span class="ctrl-val" id="blurStrengthVal">12px</span>
         </div>
         <div class="ctrl-row">
-          <span class="ctrl-label">出力サイズ</span>
+          <span class="ctrl-label">Output Size</span>
           <select id="outputSize">
             <option value="1920x1080">1920 × 1080</option>
             <option value="2560x1440">2560 × 1440</option>
@@ -444,7 +444,7 @@
 
     <!-- Reset Button -->
     <div>
-      <button class="btn btn-secondary" onclick="resetParameters()">パラメーターをリセット</button>
+      <button class="btn btn-secondary" onclick="resetParameters()">Reset Parameters</button>
     </div>
 
   </div>
@@ -461,7 +461,7 @@
           <rect x="20" y="36" width="14" height="14" rx="1.5"/>
           <rect x="38" y="36" width="12" height="14" rx="1.5"/>
         </svg>
-        <p>スライドを追加すると<br>リアルタイムでプレビューされます</p>
+        <p>Add slides to see<br>real-time preview</p>
       </div>
       <canvas id="preview-canvas"></canvas>
     </div>
@@ -470,10 +470,10 @@
       <div class="export-btns">
         <a href="#" class="btn-share" id="shareBtn" target="_blank" rel="noopener noreferrer">
           <span>𝕏</span>
-          <span>シェア</span>
+          <span>Share</span>
         </a>
-        <button class="btn-export btn-export-png" onclick="doExport('png')">PNG 保存</button>
-        <button class="btn-export btn-export-jpg" onclick="doExport('jpg')">JPG 保存</button>
+        <button class="btn-export btn-export-png" onclick="doExport('png')">Save PNG</button>
+        <button class="btn-export btn-export-jpg" onclick="doExport('jpg')">Save JPG</button>
       </div>
     </div>
   </div>
@@ -585,7 +585,7 @@ function resetParameters() {
 function clearAllSlides() {
   if (S.images.length === 0) return;
 
-  if (confirm('すべてのスライドを削除しますか？')) {
+  if (confirm('Delete all slides?')) {
     S.images = [];
     renderThumbs();
     schedule();
@@ -794,7 +794,7 @@ function refresh() {
 
 // ── Export ────────────────────────────────────────────────────
 function doExport(fmt) {
-  if (S.images.length === 0) { alert('スライドを追加してください'); return; }
+  if (S.images.length === 0) { alert('Please add slides first'); return; }
   const p = P();
   const [W, H] = p.outputSize.split('x').map(Number);
   const scale = W / 1920;
@@ -924,8 +924,8 @@ new ResizeObserver(schedule).observe(document.getElementById('previewWrap'));
 
 // ── Share Button ──────────────────────────────────────────────
 const shareBtn = document.getElementById('shareBtn');
-const shareText = 'Slide Collageでポートフォリオレイアウトを作成しました！';
-const shareUrl = 'https://slide-collage.vercel.app/';
+const shareText = 'Create stunning portfolio layouts with Slide Collage!';
+const shareUrl = 'https://slide-collage.vercel.app/en/';
 shareBtn.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
 
 // ── Init ──────────────────────────────────────────────────────
